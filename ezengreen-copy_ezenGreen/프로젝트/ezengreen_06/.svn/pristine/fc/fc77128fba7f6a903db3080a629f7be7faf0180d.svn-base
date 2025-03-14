@@ -1,0 +1,21 @@
+<%@ page language="java" contentType="text/html; charset=UTF-8"
+    pageEncoding="UTF-8"%>
+<%@ include file="include/common.jsp" %>
+<%
+String uname = request.getParameter("uname");
+String uemail = request.getParameter("uemail");
+UserDTO dto = new UserDTO();
+if(uname == null || uname == "")
+{
+	out.print("00");
+	return;
+}
+if(dto.findPWEmail(uname,uemail) == true)
+{
+	out.print("01");
+}else
+{
+	out.print("02");
+}
+
+%>

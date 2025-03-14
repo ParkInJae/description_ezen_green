@@ -1,0 +1,64 @@
+<%@ page language="java" contentType="text/html; charset=UTF-8"
+    pageEncoding="UTF-8"%>
+<%@ page import="java.sql.Connection" %>
+<%@ page import="java.sql.DriverManager" %>
+<%@ page import="java.sql.ResultSet" %>
+<%@ page import="java.sql.Statement" %>  
+<%@ page import="java.io.*" %>   
+<%
+//JDBC 드라이버를 로딩한다
+Class.forName("com.mysql.cj.jdbc.Driver");
+//연결을 저장할 객체를 생성한다
+Connection conn = null;
+//프로토콜://주소:포트/DB이름?키=값&키=값
+String host = "jdbc:mysql://192.168.0.37/ezengreen";
+host += "?useUnicode=true&characterEncoding=utf-8";
+host += "&serverTimezone=UTC";
+String user = "ezengreen";
+String pass = "ezen";
+//데이터베이스에 접속한 결과를 연결객체에 할당한다
+conn = DriverManager.getConnection(host, user, pass);
+//SQL 구문을 입력받아 작업을 처리하는 개체를 생성한다
+Statement stmt = conn.createStatement();
+
+//게시물 번호	
+String fno = request.getParameter("fno");
+//첨부파일을 얻는다.
+String sql = "";
+sql  = "select pname,fname "; 
+sql += "from file ";
+sql += "where fno = " + fno;
+ResultSet rs = stmt.executeQuery(sql);
+String pname = "";
+String fname = "";
+if( rs.next() == true)
+{
+	pname  = rs.getString("pname");
+	fname  = rs.getString("fname");
+}
+
+//작업 할당을 해제한다.
+stmt.close();
+//DB 연결을 종료합니다
+conn.close();
+
+//첨부파일을 브라우저로 전송한다.
+String uploadPath = "D:\\syt\\team\\ezengreen_05\\src\\main\\webapp\\img";
+
+response.setContentType("application/octet-stream");   
+response.setHeader("Content-Disposition","attachment; filename=" + fname + "");   
+String fullname = uploadPath + "\\" + pname;
+File file = new File(fullname);
+FileInputStream fileIn = new FileInputStream(file);
+ServletOutputStream ostream = response.getOutputStream();
+
+byte[] outputByte = new byte[4096];
+//copy binary contect to output stream
+while(fileIn.read(outputByte, 0, 4096) != -1)
+{
+	ostream.write(outputByte, 0, 4096);
+}
+fileIn.close();
+ostream.flush();
+ostream.close();
+%>

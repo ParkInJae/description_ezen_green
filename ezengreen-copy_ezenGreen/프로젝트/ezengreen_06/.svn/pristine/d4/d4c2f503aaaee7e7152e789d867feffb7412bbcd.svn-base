@@ -1,0 +1,43 @@
+<%@ page language="java" contentType="text/html; charset=UTF-8" pageEncoding="UTF-8"%>
+<%@ include file="include/head.jsp" %> 
+<%
+request.setCharacterEncoding("UTF-8");
+
+String bno       = request.getParameter("bno");
+String bkind     = request.getParameter("kind");
+String curpage   = request.getParameter("page");
+String rcontent  = request.getParameter("replyText");
+String nowpage   = request.getParameter("page");
+
+if(bno == null)
+{
+	response.sendRedirect("index.jsp");
+	return;
+}
+
+db.DBOpen();
+
+//댓글을 저장한다.
+String sql = "";
+
+sql  = "insert into reply (bno,uno,rcontent) ";
+sql += "values (";
+sql += "'" + bno + "',";
+sql += "'" + login_no + "',";
+sql += "'" + rcontent + "'";
+sql += ") ";
+System.out.println(sql);
+db.RunSQL(sql);
+
+/* response.sendRedirect("view.jsp?no=" + bno + "&kind=" + bkind + "&page=" + curpage); */
+
+db.DBClose();
+%>
+<script>
+window.onload = function()
+{
+	alert("댓글작성 되었습니다");
+	
+	window.location.href = "view.jsp?no="+ <%= bno %>  + "&page=<%= nowpage %>";
+}
+</script>

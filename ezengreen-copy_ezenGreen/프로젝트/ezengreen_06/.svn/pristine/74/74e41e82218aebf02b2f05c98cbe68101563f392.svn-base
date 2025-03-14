@@ -1,0 +1,43 @@
+<%@ page language="java" contentType="text/html; charset=UTF-8"
+         pageEncoding="UTF-8"%>
+<%@ include file="include/head.jsp" %>
+<%
+
+request.setCharacterEncoding("UTF-8");
+
+String uname  = request.getParameter("uname");
+String uemail = request.getParameter("uemail");
+
+//1.  uid, uemail이 맞는지 유효성을 검사
+if(uname == null || uemail==null )
+{
+	response.sendRedirect("login.jsp");
+	return;
+}
+UserVO vo = new UserVO();
+UserDTO dto = new UserDTO();
+
+//2.  만약 rs.next()에서 아이디를 찾는다면 아이디를 알려주고 로그인 창으로 보냄
+if( dto.findPWEmail(uname,uemail) == true )
+{
+	String sql ="select uid from user where uid = '" + uname +"' and uemail = '" + uemail + "' ";
+	db.OpenQuery(sql);
+	db.G
+	String findID = vo.getUid();
+	%>
+	<script>
+		alert("회원님의 아이디는 <%= findID %>입니다.");
+		window.location.href = "login.jsp";
+	</script>
+	<%	
+}else
+{
+	//3.  만약 rs.next()에서 아이디를 찾지 못한다면 "찾지 못한다"고 알려주고, 회원가입 창으로 보냄
+	%>
+	<script>
+		alert("존재하지 않는 아이디입니다.");
+		window.location.href = "join.jsp";
+	</script>
+	<%
+}
+%>

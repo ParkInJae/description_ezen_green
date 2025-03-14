@@ -1,0 +1,299 @@
+<%@ page language="java" contentType="text/html; charset=UTF-8"
+         pageEncoding="UTF-8"%>
+<%@ include file="include/head.jsp" %>
+<%
+db.DBOpen();
+String bno     = request.getParameter("no");
+String kind    = request.getParameter("kind");
+String year    = request.getParameter("year");
+String month   = request.getParameter("month");
+String day     = request.getParameter("day");
+
+if(login_id==null) login_id="";
+if(login_name==null) login_name="";
+if(bno == null)
+{
+	response.sendRedirect("index.jsp");
+	return;
+}
+if(kind == null)	{ kind = "S"; }
+
+
+String sql = "";
+//해당 게시물 번호에 대한 정보/댓글수를 조회한다.
+sql  = "SELECT board.*, ";
+sql += "(SELECT COUNT(*) FROM reply WHERE bno = board.bno) AS rno, ";
+sql += "(SELECT uname FROM user WHERE uno = board.uno) AS uname ";
+sql += "FROM board ";
+sql += "WHERE bno = " + bno;
+System.out.println(sql);
+db.OpenQuery(sql);
+if(db.GetNext()== false)
+{
+	response.sendRedirect("index.jsp");
+	return;
+}
+
+String uno       = db.GetValue("uno");
+String btitle    = db.GetValue("btitle");
+String bkind     = db.GetValue("bkind");
+String bcontent  = db.GetValue("bcontent");
+String bhit      = db.GetValue("bhit");
+String uname     = db.GetValue("uname");
+String rno       = db.GetValue("rno");
+
+//select date(bwdate) as bwdate from  board where bno = '';	//게시물 작성일자 date로 자르는 구문
+sql  = "select date(bwdate) as bwdate ";
+sql += "from  board ";
+sql += "where bno ='" + bno + "' "; 
+System.out.println(sql);
+db.OpenQuery(sql);
+db.GetNext();
+String bwdate = db.GetValue("bwdate");
+
+//조회수를 증가시킨다.
+sql  = "update board set bhit = bhit + 1 ";
+sql += "where bno = " + bno;
+System.out.println(sql);
+db.RunSQL(sql);
+%>
+<script>
+function lists(){
+	
+	document.getElementById('view').action = 'index.jsp?year=<%=year%>&month=<%=month%>&day=<%=day%>';
+	document.getElementById('view').submit();
+}
+
+function modi() {
+  
+	if ("<%= login_id %>" == "admin") 
+	{
+		let confirmSubmit = confirm("수정하시겠습니까?");
+		if(confirmSubmit)
+			{
+				document.getElementById('view').action = "modify.jsp?no=<%= bno %>&year=<%=year%>&month=<%=month%>&day=<%=day%>";
+				document.getElementById('view').submit();
+			}
+		return confirmSubmit;
+	}
+	else
+	{ 
+    	alert("글 수정 권한이 없습니다.");
+    	return false;
+	} 
+}
+
+function del() {
+	if ("<%= login_id %>" == "admin" ) 
+	{
+		let confirmSubmit = confirm("삭제하시겠습니까?");
+	    if (confirmSubmit) 
+	    {
+	    	document.getElementById('view').action = 'deleteok.jsp?no=<%= bno %>&year=<%=year%>&month=<%=month%>&day=<%=day%>';
+            document.getElementById('view').submit();
+	    }
+	    return confirmSubmit;
+	}
+	else
+	{ 
+    	alert("글 삭제 권한이 없습니다.");
+    	return false;
+	} 
+}
+
+function reply() {
+
+    if ("<%= login_name %>" == "") 
+    {
+        alert("로그인한 유저만 댓글작성이 가능합니다.");
+        return false;
+    }
+    else
+    {
+        let replyText = document.getElementById('replyText').value;
+        if (replyText.trim() === "") {
+            alert("댓글 내용을 입력해주세요.");
+            document.getElementById('replyText').focus();
+            return false;
+        }
+        let confirmSubmit = confirm("작성하시겠습니까?");
+        if (confirmSubmit) {
+            document.getElementById('view').action = 'replyok.jsp?no=<%= bno %>&year=<%=year%>&month=<%=month%>&day=<%=day%>';
+            document.getElementById('view').submit();
+            return true;
+        }
+        // 확인이 false인 경우 form 제출 방지
+        return false;
+    }
+}
+
+function replydel(replyno, bno,year,month,day) {
+    if (confirm("댓글을 삭제하시겠습니까?")) {
+        document.location = "replydeleteok.jsp?rno=" + replyno + "&no=" + bno +"&year=" + year +"&month=" + month +"&day=" + day;
+    }
+}
+
+</script>
+<!--  action="deleteok.jsp?no=<%=bno%>" -->
+<form name="view" id="view" method="post">
+    <input type="hidden" name="kind" value="<%= kind %>">
+    <input type="hidden" name="no" value="<%= bno %>">
+    <input type="hidden" name="year" value="<%=year%>">
+	<input type="hidden" name="month" value="<%=month%>">
+	<input type="hidden" name="day" value="<%=day%>">
+	<table border="0" width="100%" height="430px" style="text-align:center" class="maintable">
+		<tr>
+			<td colspan="5" style="text-align:left"><%=btitle %></td>
+		</tr>
+		<tr>
+			<td colspan="5" height="1px">								
+				<hr size="1" style="width: 100%; height: 1px; background-color: dimgrey">
+			</td>
+		</tr>               			
+		<tr class="gray">
+			<td colspan="5" style="height:25px">
+				<table border="0" style="height:10px; width:100%; border-spacing: 0;">
+					<tr>
+		           		<td width="80px">&nbsp;&nbsp;<%= uname %></td>
+						<td colspan="2" style="text-align:right;"><%= bwdate %></td>
+						<td width="90px" style="text-align:right;">조회수 <%= bhit %></td>
+						<td width="70px" style="text-align:center;">댓글 <%= rno %></td>
+					</tr>
+				</table>
+			</td>
+		</tr>
+		<tr>
+			<td colspan="5" height="1px">								
+				<hr size="1" style="width: 100%; height: 1px; background-color: dimgrey">
+			</td>
+		</tr>                			
+		<tr>
+			<td colspan="5" height="200px" align="left">
+			<%
+				ArrayList<Map<String,String>> files = new ArrayList<>();  
+				sql ="select fno, pname, fname from file where bno = " + bno;
+				System.out.println(sql);
+				db.OpenQuery(sql);
+				while(db.GetNext() == true)
+				{
+					Map<String,String> file = new HashMap<>();					
+					String pname  = db.GetValue("pname");
+					String fname  = db.GetValue("fname");
+					String fno	  = db.GetValue("fno");
+					file.put("pname",pname);
+					file.put("fname",fname);
+					file.put("fno", fno);
+					files.add(file);
+				}
+				for(Map<String,String> file : files )
+				{
+					System.out.println("--------------------------");
+					System.out.println("저장된 이름 : " + file.get("pname") );
+					System.out.println("원래 이름 : " + file.get("fname") );
+					System.out.println("파일번호 : " + file.get("fno") );
+				}
+				
+				for(Map<String,String> file : files )
+				{	
+					%>
+					&nbsp;&nbsp;<img src="down.jsp?fno=<%= file.get("fno") %>" class="gsize_v"><br>
+						<input type="hidden" id="pna" name="pna" value="<%= file.get("pname") %>">
+					<%	
+				}
+				%>
+					&nbsp;&nbsp;<%= bcontent %>
+				</td>	
+			</tr>
+			<tr>
+				<td colspan="2" height="30px" style="font-size:10pt; text-align:left">
+					&nbsp;&nbsp;첨부파일 :
+					<%
+					if(files == null || files.size() == 0)
+					{
+						%>
+						첨부파일이 없습니다.
+						<%
+					}
+					
+					for(Map<String,String> file : files )
+					{	
+						%>
+						<a href="down.jsp?fno=<%= file.get("fno") %>"><%= file.get("fname") %></a>&nbsp;&nbsp;
+						<%	
+					}	
+					%>
+			</td>
+			<td style="font-size:10pt" width="12%"><input type="button" value="글목록" onClick="lists();"></td>
+			<td style="font-size:10pt" width="12%"><input type="button" value="글수정" onClick="modi();"></td>
+			<td style="font-size:10pt" width="12%"><input type="button" value="글삭제" onClick="del();"></td>
+		</tr>
+		<tr>
+			<td colspan="5" height="1px">								
+				<hr size="1" style="width: 100%; height: 1px; background-color: dimgrey">
+			</td>
+		</tr>   
+		<tr>
+		<% 
+			sql  = "select rno,uno,rcontent,date(rwdate) as rwdate, ";
+			sql += "(select uname from user where uno = reply.uno) as uname ";
+			sql += "from reply ";
+			sql += "where bno = " + bno + " ";
+			sql += "order by rno desc ";
+			db.OpenQuery(sql);
+			while(db.GetNext() == true)
+			{
+				String replyno       = db.GetValue("rno");
+				String replycontent  = db.GetValue("rcontent");
+				String replywdate    = db.GetValue("rwdate");
+				String replyuname    = db.GetValue("uname");		
+				%>
+				<tr>
+					<td style="font-size:10pt; width:80px"><%= replyuname %></td>
+					<td style="font-size:10pt" colspan="3" height="20px" align="left"><%= replycontent %>
+						<%
+						if(login_no != null && login_name.equals(replyuname) || login_id.equals("admin"))
+						{
+							%>
+							[<a href="#" onClick="replydel('<%= replyno %>','<%= bno %>','<%= year %>','<%= month %>','<%= day %>')">삭제</a>]
+							<%
+						}
+						%>
+					</td>
+					<td style="font-size:10pt; width:120px;"><%= replywdate %></td>
+				</tr>
+				<%
+			}
+		%>
+		</tr>
+		<tr>
+			<td colspan="5" height="1px">								
+				<hr size="1" style="width: 100%; height: 1px; background-color: dimgrey">
+			</td>
+		</tr>	                
+		<tr>
+			<td style="font-size:10pt; width:100px">
+				<%
+				if(login_name == "")
+				{
+					%>
+					GUEST 
+					<%
+				}else
+				{ 
+					%>
+					<%= login_name %>
+					<%
+				}
+				%>
+			</td>
+			<td colspan="3">
+				<input type="text" id="replyText" name="replyText" style="width:95%" placeholder="내용을 입력해주세요.">
+			</td>
+			<td><input type="button" value="댓글작성" onClick="reply()"></td>
+		</tr>
+	</table>
+</form>
+<% 
+db.DBClose();
+%>
+<%@ include file="include/tail.jsp" %>

@@ -1,0 +1,57 @@
+<%@ page language="java" contentType="text/html; charset=UTF-8"
+         pageEncoding="UTF-8"%>
+<%@ include file="include/head.jsp" %>
+<%
+String uid = request.getParameter("uid");
+String upw = request.getParameter("upw");
+String refer = request.getParameter("refer");
+//if(refer!=null) System.out.println(refer);
+if( uid == null || upw == null )
+{
+	//로그인 정보가 올바르게 전송되지 않음.
+	response.sendRedirect("login.jsp");
+	return;
+}
+
+String sql = "";
+sql  = "select uno,uname,uemail,admin from user ";
+sql += "where uid = '" + uid + "' ";
+sql += "and upw = md5('" + upw + "') ";
+System.out.println(sql);
+ResultSet rs = stmt.executeQuery(sql);
+if( rs.next() == false )
+{
+	//로그인 정보가 일치하지 않음
+	%>
+	<script>
+	window.onload = function()
+	{
+		alert("아이디 또는 비밀번호가 일치하지 않습니다.");
+		window.location.href = "login.jsp"
+	}
+	</script>
+	<%	
+}else
+{
+	String uno    = rs.getString("uno");
+	String uname  = rs.getString("uname");
+	String uemail = rs.getString("uemail");
+	String admin  = rs.getString("admin");
+	
+	//사용자 번호,아이디,이름
+	session.setAttribute("uid"  , uid);
+	session.setAttribute("uno"  , uno);
+	session.setAttribute("uname", uname);
+	session.setAttribute("uemail", uemail);
+	session.setAttribute("upw", upw);
+	session.setAttribute("admin", admin);
+	
+	if(refer.equals("http://localhost:8080/ezengreen_05/resetPWok.jsp"))
+	{
+		response.sendRedirect("index.jsp");
+	}else
+	{
+		response.sendRedirect(refer);
+	}
+}
+%>

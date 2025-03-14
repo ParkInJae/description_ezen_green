@@ -1,0 +1,67 @@
+<%@ page language="java" contentType="text/html; charset=UTF-8"
+         pageEncoding="UTF-8"%>
+<%@ include file="include/head.jsp" %>
+<%
+//업로드가 가능한 최대 파일 크기를 지정한다.
+int size = 10 * 1024 * 1024;
+
+MultipartRequest multi;
+try
+{
+	multi = new MultipartRequest(request,uploadPath,size,"UTF-8",new DefaultFileRenamePolicy());
+}catch(Exception e)
+{
+	 e.printStackTrace();
+	 
+	response.sendRedirect("write.jsp");
+	return;
+}
+
+String btitle = multi.getParameter("title");
+String bkind = multi.getParameter("bkind");
+String content = multi.getParameter("content").split("<img")[0];
+String year = multi.getParameter("year");
+String month = multi.getParameter("month");
+String day = multi.getParameter("day");
+content = content.replace("<p>", "").replace("</p>", "");
+
+//업로드된 파일명을 얻는다.
+Enumeration files = multi.getFileNames();		//multi에 저장된 파일이름을 files로 선언
+String fileid = (String) files.nextElement();	
+String filename = (String) multi.getFilesystemName("fname");
+
+String phyname = null;
+if(filename != null)
+{
+	phyname = UUID.randomUUID().toString();
+	String srcName    = uploadPath + "/" + filename;
+	String targetName = uploadPath + "/" + phyname;
+	File srcFile    = new File(srcName);
+	File targetFile = new File(targetName);
+	srcFile.renameTo(targetFile);
+} 
+BoardVO bvo = new BoardVO();
+bvo.setBtitle(btitle);
+bvo.setBkind(bkind);
+bvo.setBcontent(content);
+bvo.setUno(login.getUno());
+BoardDTO bdto = new BoardDTO();
+bdto.Insert_S(bvo, year, month, day);
+
+FileVO fvo = new FileVO();
+fvo.setFname(filename);
+fvo.setPname(phyname);
+fvo.setBno(bvo.getBno());
+FileDTO fdto = new FileDTO();
+fdto.FileUpload(fvo);
+
+%>       
+<script>
+var date_str = 'year=<%=year%>&month=<%=month%>&day=<%=day%>';
+window.onload = function()
+{
+	alert("작성 되었습니다");
+	
+	window.location.href = "view.jsp?no=<%=bvo.getBno() %>&date_str";
+}
+</script>

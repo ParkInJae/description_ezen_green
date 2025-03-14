@@ -1,0 +1,94 @@
+<%@ page language="java" contentType="text/html; charset=UTF-8"
+         pageEncoding="UTF-8"%>
+<%@ page import="java.util.*" %>
+<%@ page import="java.io.*" %>
+<%@ page import="java.net.URLEncoder" %>
+<%@ page import="com.oreilly.servlet.MultipartRequest" %>
+<%@ page import="com.oreilly.servlet.multipart.DefaultFileRenamePolicy" %>    
+<%@ include file="include/head.jsp" %>
+<%
+String uploadPath = "D:\\smc\\project\\ezengreen_05\\src\\main\\webapp\\img";
+//업로드가 가능한 최대 파일 크기를 지정한다.
+int size = 10 * 1024 * 1024;
+
+MultipartRequest multi;
+try
+{
+	multi = new MultipartRequest(request,uploadPath,size,"UTF-8",new DefaultFileRenamePolicy());
+}catch(Exception e)
+{
+	 e.printStackTrace();
+	 
+	response.sendRedirect("write.jsp");
+	return;
+}
+
+String btitle   = multi.getParameter("title");
+String bkind    = multi.getParameter("bkind");
+String bcontent = multi.getParameter("content").split("<img")[0];
+String nowpage  = multi.getParameter("page");
+bcontent = bcontent.replace("<p>", "").replace("</p>", "");
+
+//Board 테이블에 자료를 등록한다.
+String sql = "";
+sql  = "insert into board (uno,btitle,bkind,bcontent) ";
+sql += "values (";
+sql += "'" + login_no + "',";
+sql += "'" + btitle.replace("'","''") + "',";
+sql += "'" + bkind + "',";
+sql += "'" + bcontent.replace("'","''") + "'";
+sql += ")";
+System.out.println(sql);
+stmt.executeUpdate(sql);
+
+//등록된 게시물의 번호를 얻는다.
+sql = "select last_insert_id() as bno ";
+ResultSet rs = stmt.executeQuery(sql);
+rs.next();
+String bno = rs.getString("bno");
+
+//업로드된 파일명을 얻는다.
+Enumeration files = multi.getFileNames();
+while(files.hasMoreElements()) 
+{
+	String name     = (String) files.nextElement();
+	String filename = (String) multi.getFilesystemName(name);
+	
+	if(filename == null)
+	{
+		//업로드된 파일명이 null
+		continue;
+	}
+	
+	String phyname = UUID.randomUUID().toString();
+	String srcName    = uploadPath + "/" + filename;
+	String targetName = uploadPath + "/" + phyname;
+	File srcFile    = new File(srcName);
+	File targetFile = new File(targetName);
+	srcFile.renameTo(targetFile);
+	
+	
+	//첨부파일을 등록한다.
+	if(filename != null)
+	{
+		sql  = "insert into file (bno,pname,fname) ";
+		sql += "values ( ";
+		sql += "'" + bno + "', ";
+		sql += "'" + phyname + "', ";
+		sql += "'" + filename + "' ";
+		sql += ") ";
+		System.out.println(sql);
+		stmt.executeUpdate(sql);	
+	}
+}
+
+
+%>       
+<script>
+window.onload = function()
+{
+	alert("작성 되었습니다");
+	
+	window.location.href = "view.jsp?no=<%= bno %>&page=<%= nowpage %>";
+}
+</script>

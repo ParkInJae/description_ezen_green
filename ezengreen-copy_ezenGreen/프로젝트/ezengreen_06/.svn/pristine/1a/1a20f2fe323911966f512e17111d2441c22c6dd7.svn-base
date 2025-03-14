@@ -1,0 +1,130 @@
+<%@ page language="java" contentType="text/html; charset=UTF-8"
+         pageEncoding="UTF-8"%>
+<%@ include file="include/head.jsp" %>
+<%
+
+String referer = request.getHeader("referer");
+
+%>
+<script>
+
+window.onload = function()
+{
+	document.login.uid.value = "ezen";
+	document.login.upw.value = "ezen";
+	document.login.uid.focus();
+}
+function togglePasswordVisibility() {
+    const passwordField = document.getElementById('upw'); // 비밀번호 필드 선택
+    const eyeButton = document.getElementById('eye'); // "보기" 버튼 선택
+
+    // 비밀번호 필드의 타입을 토글
+    if (passwordField.type === 'password') {
+        passwordField.type = 'text'; // 비밀번호를 텍스트로 변경
+        eyeButton.value = '숨기기'; // 버튼 이름을 "숨기기"로 변경
+    } else {
+        passwordField.type = 'password'; // 텍스트를 비밀번호로 변경
+        eyeButton.value = '보기'; // 버튼 이름을 "보기"로 변경
+    }
+}
+
+function DoLogin()
+{
+	if( document.login.uid.value == "" )
+	{
+		alert("아이디를 입력하세요.");
+		document.login.uid.focus();
+		return false;
+	}
+	if( document.login.upw.value == "" )
+	{
+		alert("비밀번호를 입력하세요.");
+		document.login.upw.focus();
+		return false;
+	}
+	document.login.submit();
+	return true;
+}
+
+/* $.ajax({
+	type : "post",
+	url: "loginok.jsp",
+	data :
+	{
+		uid : $("#uid").val(),
+		upw : $("#upw").val()
+	},
+	dataType: "html",
+	success : function(result) 
+	{	
+		result = result.trim();
+		switch(result)
+		{
+		case "ERROR":
+			alert("아이디 또는 비밀번호가 일치하지 않습니다.");
+			$("#uid").focus();
+			break;
+		case "OK":
+			alert("로그인이 되었습니다.");
+			document.location = "index.jsp";
+			break;
+		}
+	}			
+});		
+} */
+</script>
+<form name="login" id="login" method="post" action="loginok.jsp?refer=<%= referer %>">
+	<table border ="0" width="100%" height="430px" class="maintable">  
+		<tr>
+			<td>
+				<table border="0" align="center">
+					<tr>
+						<td>로그인</td>
+					</tr>
+				</table>
+				<br>
+				<table border="0" align="center" margin="0">
+					<tr style="height: 40px;">
+						<td style="display: flex; justify-content: center; align-items: center; ">
+							<img src="img/IDimage.png" style="width: auto; height: 40px;" class="radius_img">
+						</td>
+						<td>
+							<input type="text" id="uid" name="uid" style="width: 96%; height: 34px" placeholder="아이디를 입력해주세요 ">
+						</td>
+						<td width="44px"></td>
+					</tr>
+				</table>
+				<br>
+				<table border="0" align="center" margin="0">
+					<tr style="height: 40px;">
+						<td style="display: flex; justify-content: center; align-items: center; ">
+							<img src="img/PWimage.png;" style="width: auto; height: 40px;" class="radius_img"></td>
+						<td>
+							<input type="password" id="upw" name="upw" style="width: 96%; height: 34px" placeholder="비밀번호를 입력해주세요 ">
+						</td>
+						<td>
+							<input type="button" value="보기" id="eye" name="eye" style="height: 30px" onClick="togglePasswordVisibility()">
+						</td>
+					</tr>
+				</table>
+				<br>
+				<table border="0" align="center">
+					<tr>
+						<td style="text-align:center; background-color:#BEBEBE;" ><a href="join.jsp"><font color="#FAFBFB">회원가입</font></a></td>
+						<td>&nbsp;&nbsp;</td>
+						<td style="text-align:center; background-color: #5E5E5E;"><a href="javascript:DoLogin();"><font color="#FAFBFB">로그인</font></a></td>
+					</tr>
+				</table>
+				<br>
+				<table border="0" align="center">
+					<tr>
+						<td><a href="findID.jsp">아이디찾기</a></td>
+						<td>&nbsp; | &nbsp;</td>
+						<td><a href="findPW.jsp">비밀번호 찾기</a></td>
+					</tr>
+				</table>
+			</td>
+		</tr>
+	</table>
+</form>
+<%@ include file="include/tail.jsp" %>

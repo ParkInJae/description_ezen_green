@@ -1,0 +1,32 @@
+<%@ page language="java" contentType="text/html; charset=UTF-8"
+         pageEncoding="UTF-8"%>
+<%@ include file="include/head.jsp" %>
+<%
+String uid = request.getParameter("uid");
+String upw = request.getParameter("upw");
+if( uid == null || upw == null )
+{
+	//로그인 정보가 올바르게 전송되지 않음.
+	out.println("ERROR");
+	return;
+}
+UserDTO dto = new UserDTO();
+UserVO  vo  = dto.Login(uid,upw);
+if(vo == null)
+{	
+	out.println("ERROR"); //로그인 안됨.
+}else
+{	
+	session.setAttribute("login", vo);
+	out.println("OK");    //로그인 됨
+}
+%>
+<script>
+window.onload = function()
+{
+	var referrer = document.referrer;
+	alert("로그인 되었습니다");
+	window.location.href="index.jsp"
+	
+}
+</script>

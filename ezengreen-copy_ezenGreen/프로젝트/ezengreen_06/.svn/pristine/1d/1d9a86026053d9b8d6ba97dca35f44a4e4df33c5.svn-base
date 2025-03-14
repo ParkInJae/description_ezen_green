@@ -1,0 +1,35 @@
+<%@ page language="java" contentType="text/html; charset=UTF-8"
+    pageEncoding="UTF-8"%>
+<%@ page import="ezengreen.dao.*" %>
+<%@ page import="ezen.mail.*" %>
+<%@ page import="java.io.*" %>
+<%@ page import="java.util.*" %>
+<%@ page import="java.sql.Connection" %>
+<%@ page import="java.sql.DriverManager" %>
+<%@ page import="java.sql.ResultSet" %>
+<%@ page import="java.sql.Statement" %>  
+<%@ page import="java.net.*" %>  
+<%@ page import="java.util.Map" %>
+<%@ page import="java.util.HashMap" %>
+<%@ page import="java.util.ArrayList" %>
+<%@ page import="java.net.URLEncoder" %>
+<%@ page import="com.oreilly.servlet.MultipartRequest" %>
+<%@ page import="com.oreilly.servlet.multipart.DefaultFileRenamePolicy" %>   
+
+<%
+//첨부파일 저장 경로
+String uploadPath = "D:\\parkij\\Teamproject\\ezengreen_DBM\\src\\main\\webapp\\img";
+//데이터베이스 처리 클래스
+
+DBManager db = new DBManager();
+
+//로그인 여부를 세션을 통해 검사한다.
+String login_id    = (String)session.getAttribute("uid");
+String login_no    = (String)session.getAttribute("uno");
+String login_name  = (String)session.getAttribute("uname");
+String login_email = (String)session.getAttribute("uemail");
+String login_upw   = (String)session.getAttribute("upw");
+String admin       = (String)session.getAttribute("admin");
+
+System.out.println(admin);
+%>

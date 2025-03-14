@@ -1,0 +1,104 @@
+package ezengreen.dto;
+
+import java.util.*;
+
+import ezengreen.dao.*;
+import ezengreen.vo.*;
+
+public class FileDTO extends DBManager
+{
+	public boolean FileUpload(FileVO vo)
+	{
+		if( this.DBOpen() == false )
+		{
+			return false;
+		}
+		
+		//첨부파일을 등록한다.
+		if(vo.getFname() != null && !vo.getFname().equals(""))
+		{
+			String sql = "";			
+			sql  = "insert into attach (bno,pname,fname) ";
+			sql += "values (";
+			sql += "'" + vo.getBno() + "',";
+			sql += "'" + vo.getPname() + "',";
+			sql += "'" + vo.getFname() + "'";
+			sql += ") ";
+			this.RunSQL(sql);	
+		}	
+		
+		this.DBClose();
+		return true;		
+	}
+	
+	public boolean FileDelete(FileVO vo)
+	{
+		if( this.DBOpen() == false )
+		{
+			return false;
+		}
+		
+		//삭제 요청한 첨부파일을 지운다.
+		if( vo.getFno() != null)
+		{
+			for(String f : vo.getFno())
+			{
+				String sql = "delete from file where fno = '" + f + "' ";
+				System.out.println(sql);
+				this.RunSQL(sql);		
+			}
+		}
+		
+		this.DBClose();
+		return true;		
+	}
+	
+
+	public ArrayList<FileVO> FileRead(String bno)
+	{
+		if( this.DBOpen() == false )
+		{
+			return null;
+		}
+		
+		ArrayList<FileVO> files = new ArrayList<>();  
+		String sql ="select fno, pname, fname from file where bno = " + bno;
+		System.out.println(sql);
+		this.OpenQuery(sql);
+		// 반복문으로 GetNext true일때에
+		while(this.GetNext() == true)
+		{
+			FileVO fvo = new FileVO();
+			fvo.setFno(this.GetValue("fno"));
+			fvo.setFname(this.GetValue("fname"));
+			fvo.setPname(this.GetValue("Pname"));
+			files.add(fvo);
+		}
+		this.DBClose();
+		return files;
+	}
+	// 스케쥴용 파일불러오기
+	public ArrayList<FileVO> FileRead_S(String fno)
+	{
+		if( this.DBOpen() == false )
+		{
+			return null;
+		}
+		
+		ArrayList<FileVO> files = new ArrayList<>();  
+		String sql ="select pname, fname from file where fno = " + fno;
+		this.OpenQuery(sql);
+		// 반복문으로 GetNext true일때에
+		while(this.GetNext() == true)
+		{
+			FileVO fvo = new FileVO();
+			fvo.setFno("fno");
+			fvo.setFname(this.GetValue("fname"));
+			fvo.setPname(this.GetValue("Pname"));
+			files.add(fvo);
+		}
+		this.DBClose();
+		return files;
+	}
+	
+}

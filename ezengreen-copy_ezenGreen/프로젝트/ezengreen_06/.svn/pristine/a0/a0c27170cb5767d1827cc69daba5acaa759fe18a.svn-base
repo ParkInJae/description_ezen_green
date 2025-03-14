@@ -1,0 +1,49 @@
+<%@ page language="java" contentType="text/html; charset=UTF-8"
+         pageEncoding="UTF-8"%>
+<%@ include file="include/head.jsp" %>
+<%
+db.DBOpen();
+
+request.setCharacterEncoding("UTF-8");
+
+String uname  = request.getParameter("uname");
+String uemail = request.getParameter("uemail");
+
+//1.  uid, uemail이 맞는지 유효성을 검사
+if(uname == null || uemail==null )
+{
+	response.sendRedirect("login.jsp");
+	return;
+}
+
+String sql = "";
+//해당 게시물 번호에 대한 정보를 조회한다.
+sql  = "select uid,uname,uemail ";
+sql += "from user ";
+sql += "where uname = '"+ uname +"' ";
+sql += "and uemail = '" + uemail + "' " ;
+System.out.println(sql);
+db.OpenQuery(sql);
+
+//2.  만약 rs.next()에서 아이디를 찾는다면 아이디를 알려주고 로그인 창으로 보냄
+if( db.GetNext() )
+{
+	String findID = db.GetValue("uid");
+%>
+	<script>
+		alert("회원님의 아이디는 <%= findID %>입니다.");
+		window.location.href = "login.jsp";
+	</script>
+<%	
+}
+//3.  만약 rs.next()에서 아이디를 찾지 못한다면 "찾지 못한다"고 알려주고, 회원가입 창으로 보냄
+else{
+%>
+	<script>
+		alert("존재하지 않는 아이디입니다.");
+		window.location.href = "join.jsp";
+	</script>
+<%
+}
+db.DBClose();
+%>

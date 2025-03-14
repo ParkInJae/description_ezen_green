@@ -1,0 +1,50 @@
+<%@ page language="java" contentType="text/html; charset=UTF-8" pageEncoding="UTF-8"%>
+<%@ include file="include/head.jsp" %>
+<%
+db.DBOpen();
+
+request.setCharacterEncoding("UTF-8");
+
+String reupw  = request.getParameter("reupw");
+//1.  uid, uemail이 맞는지 유효성을 검사
+if(reupw == null || reupw == ""   ) 
+{
+	response.sendRedirect("resetPW.jsp");
+	return;
+}
+
+String sql = "";
+//해당 게시물 번호에 대한 정보를 수정한다.
+sql  = "update user ";
+sql += "set ";
+sql += "upw = md5('" + reupw + "') ";
+sql += "where uno = '" + login_no + "' ";
+
+int result = 0;
+System.out.println(sql);
+try 
+{
+	db.RunSQL(sql); // 왜 오류 나는지 모르겠음 (질문)
+	
+	System.out.println("업데이트된 데이터 갯수 : " + result);
+    // 이후 쿼리 실행
+}catch (Exception e){};
+
+// 아래의 코드를 작성하지 않으면 비밀 번호를 변경 시켜도 세션에 있는 값과 DB에 있는 값이 일치 하지 않아 
+// 새로운 비밀 번호를 적어도 DB는 바뀌나 세션이 바뀌지 않아 새로 바꾼 비밀번호로 로그인 할 수 없다 .
+session.setAttribute("uid"  , null);
+session.setAttribute("uno"  , null);
+session.setAttribute("uname", null);
+
+db.DBClose();
+%>       
+<script>
+window.onload = function()
+{
+	alert("비밀번호가 변경 되었습니다");
+	
+	window.location.href = "login.jsp";
+}
+
+</script>
+

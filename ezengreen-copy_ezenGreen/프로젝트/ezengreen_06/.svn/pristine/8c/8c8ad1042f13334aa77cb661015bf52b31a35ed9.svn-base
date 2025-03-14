@@ -1,0 +1,5 @@
+package ezengreen.vo;
+
+public class ReplyVO {
+
+}

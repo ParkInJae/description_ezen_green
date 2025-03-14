@@ -1,0 +1,156 @@
+<%@ page language="java" contentType="text/html; charset=UTF-8" pageEncoding="UTF-8"%>
+<%@ include file="include/head.jsp" %>
+<% 
+
+String type    = request.getParameter("type");
+String keyword = request.getParameter("keyword");
+String curpage = request.getParameter("page");
+String bkind   = request.getParameter("kind");
+if(curpage  == null) curpage  = "1";
+if(type     == null) type    = "T";
+if(keyword  == null) keyword = "";
+if(bkind    == null) bkind   = "G";
+
+int nowpage = 1;
+
+//(2) "index.jsp?page=2" 에서 넘어온 page를 분석한다.
+if( request.getParameter("page") != null)
+{
+	//넘어온 page 값을 정수형 curpage 로 변환한다. 
+	nowpage = Integer.parseInt(request.getParameter("page"));
+}else
+{
+	//넘어온 page 값이 없으므로 현재 페이지 번호를 1로 설정한다. 
+	nowpage = 1;
+}
+
+String title = "";
+switch(bkind)
+{
+	case "N" : title = "공지사항";		break;
+	case "S" : title = "경기일정";		break;
+	case "C" : title = "자유게시판";	break;
+	case "G" : title = "갤러리";		break;
+}
+String sql = "";
+
+BoardDTO bdto = new BoardDTO();
+
+//전체 게시물 갯수를 조회한다.
+int total = bdto.GetTotal(bkind, type, keyword);
+
+//(4)최대 페이지 번호를 계산한다.
+int maxpage = total / 6;	//최대페이지(311)나누기 10 = 31.1 ->정수 변환 -> 31 이러면 마지막 1페이지가 표현될수가없음
+if( total % 6 != 0)	//나누기 하고 .1처럼 나머지가 나오면 마지막 1페이지 추가
+{
+	maxpage++;
+}
+
+ArrayList<BoardVO> list = bdto.GetList_G(nowpage, bkind, type, keyword);
+%>
+<table border="0" width="100%" height="430px" class="maintable">
+	<tr>
+		<td>
+			<b style="float:left;">갤러리</b>
+			</td>
+			<td colspan="3" style="float: center;">
+			<select>
+				<option>제목</option>
+				<option>내용</option>
+				<option>작성자</option>
+			</select>
+			<input type="text">
+			<input type="submit" value="검색">
+
+			<%
+			if(login != null )
+			{
+				%>
+				<input type="button" style="float: right;" value="글쓰기" onClick="location.href='write.jsp?page=<%= nowpage %>'">
+				<%
+			}else
+			{
+				%>
+				<input type="button" style="float: right;" value="글쓰기" onClick="javascript:alert('글쓰기 권한이 없습니다.');">
+				<%				 
+			}
+			%>
+			</td>
+	</tr>	
+	<tr>
+	<%
+		int i = 0;
+		for(BoardVO vo : list)
+		{
+			%>		
+			<td width="225px" height="180px">
+				<a href="view.jsp?no=<%= vo.getBno() %>&kind=<%= vo.getBkind() %>&page=<%= nowpage %>"><img src="downfile.jsp?fno=<%= vo.getFno() %>" class="gsize"></a>
+				<a href="view.jsp?no=<%= vo.getBno() %>&kind=<%= vo.getBkind() %>&page=<%= nowpage %>"><%= vo.getBtitle() %>&nbsp;(<%= vo.getRno() %>)</a><br>
+				<span style="float: left;" class="gtsize" ><%= vo.getUname() %></span>
+				<span style="float: right;" class="gtsize"><%= vo.getBwdate() %></span>
+			</td>		
+			<%
+			i++;
+			if( i % 3 == 0 && i != list.size() )
+			{
+				%>
+	</tr>
+				<tr>
+					<td colspan="5" height="1px">								
+					<hr size="1" style="width: 100%; height: 1px; background-color: dimgrey">
+					</td>
+				</tr>
+				<tr>
+				<%				
+			}
+		}
+		%>
+	</tr>
+	<tr>
+		<td colspan="5" align="center">
+			<%
+       		//(5)페이징 시작블럭번호와 끝블럭 번호를 계산한다
+       		int startBlock = ( (nowpage - 1)  / 5) * 5 + 1;	//괄호안에 값들만 먼저 정수로 변환
+       		int endBlock   = startBlock + 5 - 1; 
+       		
+       		//(6)endBlock 이 최대 페이지 번호보다 크면 안됨.
+       		if( endBlock > maxpage)
+       		{
+       			//예: maxpage가 22인데, endBlock이 30이면 endBlock을 22로 변경
+       			endBlock = maxpage;
+       		}           		
+       		//(9)이전 페이지 블럭을 표시한다.
+       		if(startBlock != 1)
+       		{
+       			%>
+       			<a href="index.jsp?kind=<%= bkind %>&page=<%= startBlock - 1 %>">◀</a>&nbsp;
+       			<%
+       		}           		
+       		//(7)화면에 블럭 페이징을 표시한다.
+       		for(int pageno = startBlock ; pageno <= endBlock; pageno++)
+       		{
+       			if( nowpage == pageno)
+       			{
+       				//현재 페이지 이면....
+       				%>
+       				<a href="index.jsp?kind=<%= bkind %>&page=<%= pageno %>"><b style="color:green;"><%= pageno %></b></a>&nbsp;
+       				<%
+       			}else
+       			{
+       				%>
+       				<a href="index.jsp?kind=<%= bkind %>&page=<%= pageno %>"><%= pageno %></a>&nbsp;
+       				<%
+       			}
+       		}            		
+       		//(8)다음 페이지 블럭을 표시한다.
+       		if(endBlock < maxpage)
+       		{
+       			%>
+       			<a href="index.jsp?kind=<%= bkind %>&page=<%= endBlock + 1 %>">▶</a>&nbsp;
+       			<%
+       		}      		
+         	%>		
+		</td>
+	</tr>
+</table>
+<%@ include file="include/tail.jsp" %>

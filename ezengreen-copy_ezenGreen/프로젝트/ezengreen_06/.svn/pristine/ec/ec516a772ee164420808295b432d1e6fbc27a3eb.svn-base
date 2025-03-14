@@ -1,0 +1,231 @@
+<%@ page language="java" contentType="text/html; charset=UTF-8"
+         pageEncoding="UTF-8"%>
+<%@ include file="include/head.jsp" %>
+<%
+
+String bno     = request.getParameter("no");
+String kind    = request.getParameter("kind");
+String nowpage = request.getParameter("page");
+// 여기서부터 작업 
+if(bno == null || bno.equals(""))
+{
+	response.sendRedirect("index.jsp");
+	return;
+}
+if(kind == null) kind = "N";
+if(nowpage == null) nowpage = "1";
+
+//게시물 정보를 조회한다.
+BoardDTO bdto = new BoardDTO() ; 
+BoardVO bvo = bdto.Read(bno, true);
+if(bvo.getRno() == null) { bvo.setRno("0"); }
+
+%>
+<script>
+function lists()
+{
+	document.getElementById('view').action = 'index.jsp?page=<%= nowpage %>';
+	document.getElementById('view').submit();
+}
+
+<%
+if( login != null && login.getAdmin().equals("1"))
+{
+	%>
+	function modi() 
+	{
+			let confirmSubmit = confirm("수정하시겠습니까?");
+			
+			if(confirmSubmit) 
+			{
+				document.getElementById('view').action = 'modify.jsp?no=<%= bno %>&page=<%= nowpage %>';
+				document.getElementById('view').submit();
+			}
+			return confirmSubmit
+	}
+	
+	function del() 
+	{
+		let confirmSubmit = confirm("삭제하시겠습니까?");
+		
+		if(confirmSubmit) 
+		{
+			document.getElementById('view').action = 'deleteok.jsp?no=<%= bno %>&page=<%= nowpage %>';
+			document.getElementById('view').submit();
+		}
+		return confirmSubmit
+	
+	}
+	<%
+}
+
+if( login != null)
+{
+	%>
+	function reply()
+	{
+		let replyText = document.getElementById('replyText').value;
+		 if (replyText.trim() === "") 
+		 {
+           alert("댓글 내용을 입력해주세요.");
+           document.getElementById('replyText').focus();
+           return false;
+       }
+		
+		let confirmSubmit = confirm("작성하시겠습니까?");
+		
+		if(confirmSubmit) 
+		{
+			document.getElementById('view').action = 'replyok.jsp?page=<%=nowpage%>';
+			
+			document.getElementById('view').submit();
+			return true;
+		}
+		
+		// 확인이 false인 경우 form 제출 방지 
+		return false;
+	}
+	
+	function replydel(replyno,bno,nowpage)
+	{
+		if(confirm("댓글을 삭제하시겠습니까?"))
+		{
+			document.location = "replydeleteok.jsp?rno=" + replyno + "&no=" + bno + "&page=<%= nowpage %>";
+		}
+	}
+	<%
+}
+%>
+</script>
+<form name="view" id="view" method="post">
+	<input type="hidden" name="bno" value="<%= bno %>">
+    <input type="hidden" name="kind" value="<%= kind %>">
+    <input type="hidden" name="page" value="<%= nowpage %>">
+	<table border="0" width="100%" height="430px" style="text-align:center" class="maintable">
+		<tr>
+			<td colspan="5" align="left" height="30px"><%= bvo.getBtitle() %></td>
+		</tr>
+		<tr>
+			<td colspan="5" height="1px">								
+				<hr size="1" style="width: 100%; height: 1px; background-color: dimgrey">
+			</td>
+		</tr> 	                
+		<tr class="gray">
+			<td colspan="5" height="25px">
+				<table border="0" style="width:100%; border-spacing: 0;">
+				<td><%= bvo.getUname() %></td>
+						<td colspan="2" align="right"><%= bvo.getBwdate() %></td>
+						<td width="120px">조회수 <%= bvo.getBhit() %></td>
+						<td width="120px">댓글 <%= bvo.getRno() %></td>
+				</table>
+			</td>
+		</tr>
+		<tr>
+			<td colspan="5" height="1px">								
+				<hr size="1" style="width: 100%; height: 1px; background-color: dimgrey">
+			</td>
+		</tr>
+		<tr>
+			<td colspan="5" height="250px" align="left">
+			<%
+				FileDTO  fdto  = new FileDTO();
+				ArrayList<FileVO> list = fdto.FileRead(bvo.getBno());
+			
+				for( FileVO file : list )
+				{	
+					%>
+					<img src="down.jsp?bno=<%= file.getBno() %>" class="gsize_v"><br>
+					<input type="hidden" id="pna" name="pna" value="<%= file.getPname() %>">
+					<%	
+				}
+				%>
+			<%= bvo.getBcontent() %>
+			</td>	                			
+		</tr>
+		<tr>
+			<td colspan="2" height="30px" style="font-size:10pt; text-align:left">
+				&nbsp;&nbsp;첨부파일 :
+				<%
+					if( list == null || list.size() == 0 )
+					{
+						%>
+						첨부파일이 없습니다.
+						<%
+					}
+					
+					for( FileVO file : list )
+					{	
+						%>
+						<a href="downfile.jsp?fno=<%= file.getFno() %>"><%= file.getFname() %></a>&nbsp;&nbsp;
+						<%	
+					}	
+				%>
+			</td>
+			<td style="font-size:10pt" width="90px"><input type="button" value="글목록" onClick="lists()"></td>
+			<%
+			if(login != null && login.getAdmin().equals("1"))
+			{
+				%>
+				<td style="font-size:10pt" width="90px"><input type="button" value="글수정" onClick="modi()"></td>
+				<td style="font-size:10pt" width="90px"><input type="button" value="글삭제" onClick="del()"></td>
+				<%
+			}
+			%>
+		<tr>
+			<td colspan="5" height="1px">								
+				<hr size="1" style="width: 100%; height: 1px; background-color: dimgrey">
+			</td>
+		</tr>
+		<tr>
+		<% 
+		ReplyDTO rdto  = new ReplyDTO();
+		ArrayList<ReplyVO> rlist = rdto.GetList(bno);
+		for (ReplyVO repl : rlist)
+		{
+		%>
+			<tr>
+				<td style="font-size:10pt; width:80px; height:25px;"><%= repl.getUname() %></td>
+				<td style="font-size:10pt" colspan="3" align="left"><%= repl.getRcontent() %>
+					<%
+						if(login.getUno() != null && login.getUname().equals(repl.getUname()) || login.getAdmin().equals("1"))
+						{
+							%>
+							[<a href="#" onClick="replydel('<%= repl.getRno() %>','<%= bno %>')">삭제</a>]
+							<%
+						}
+					%>
+				</td>
+				<td style="font-size:10pt; width:120px;"><%= repl.getRwdate() %></td>
+			</tr>
+		<%
+		}
+		%>
+		<tr>
+			<td colspan="5" height="1px">								
+				<hr size="1" style="width: 100%; height: 1px; background-color: dimgrey">
+			</td>
+		</tr>	                
+		<tr>
+			<td style="font-size:10pt; width:100px">
+			 <%
+	        if( login == null ) 
+		        {
+			        %>
+			       		GUEST
+			        <%
+		        }else
+		        {
+			        %>
+			        	<%= login.getUname() %>
+			        <%
+		        }
+	        %>
+			</td>
+			<td colspan="3">
+				<input type="text" id="replyText" name="replyText" style="width:95%" placeholder="내용을 입력해주세요.">
+			</td>
+			<td><input type="button" value="댓글작성" onClick="reply()"></td>
+		</tr>
+	</table>
+</form>
+<%@ include file="include/tail.jsp" %>

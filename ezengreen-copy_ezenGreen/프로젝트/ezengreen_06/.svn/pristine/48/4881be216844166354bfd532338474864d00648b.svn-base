@@ -1,0 +1,105 @@
+<%@ page language="java" contentType="text/html; charset=UTF-8"
+         pageEncoding="UTF-8"%>
+<%@ page import="java.sql.Connection" %>
+<%@ page import="java.sql.DriverManager" %>
+<%@ page import="java.sql.ResultSet" %>
+<%@ page import="java.sql.Statement" %>  
+<%@ page import="java.net.*" %>  
+<%
+//로그인 여부를 세션을 통해 검사한다.
+String login_id    = (String)session.getAttribute("uid");
+String login_no    = (String)session.getAttribute("uno");
+String login_name  = (String)session.getAttribute("uname");
+String login_email = (String)session.getAttribute("uemail");
+String login_upw   = (String)session.getAttribute("upw");
+
+//JDBC 드라이버를 로딩한다
+Class.forName("com.mysql.cj.jdbc.Driver");
+//연결을 저장할 객체를 생성한다
+Connection conn = null;
+//프로토콜://주소:포트/DB이름?키=값&키=값
+String host = "jdbc:mysql://192.168.0.37:3306/ezengreen";
+host += "?useUnicode=true&characterEncoding=utf-8";
+host += "&serverTimezone=UTC";
+String user = "ezengreen";
+String pass = "ezen";
+//데이터베이스에 접속한 결과를 연결객체에 할당한다
+conn = DriverManager.getConnection(host, user, pass);
+//SQL 구문을 입력받아 작업을 처리하는 개체를 생성한다
+Statement stmt = conn.createStatement();
+
+
+%>
+<!DOCTYPE html>
+<html>
+<head>
+	<meta charset="UTF-8">
+	<title>이젠 그린</title>
+	<link rel="stylesheet" href="../CSS/board.css">
+	<script type="text/javascript" src="../SmartEditor2/js/HuskyEZCreator.js" charset="utf-8"></script>
+	<script src="../jquery-3.7.1.js"></script>
+</head>
+<script>
+	function Mypage()
+	{	
+		document.mypage.submit();
+		return true;
+	};
+</script> 
+<body>
+	<table border="0" width="900px" align="center" class="outer-table">
+		<tr>
+			<td colspan="7">
+				<span style="font-size:25pt; font-weight:bold;"><a href="../index.jsp"><font color="#35F385">EZENGREEN</font></a></span>
+			</td>				
+		</tr>
+		<tr>
+			<td rowspan="3" valign="top" width="150px">
+				<form name="mypage" id="mypage" method="post" action="../mypage.jsp">
+					<%
+					if(login_id == null)
+					{	String nowpage = request.getParameter("page");
+					%>
+					<table border="0" width="100%">
+						<tr>
+							<td class="login-buttons" style="text-align:center;"><a href="../login.jsp?kind=C&page=<%= nowpage %>"><font color="#FAFBFB">로그인</font></a></td>
+	                        <td class="login-buttons" style="text-align:center;"><a href="../join.jsp?kind=C&page=<%= nowpage %>"><font color="#FAFBFB">회원가입</font></a></td>
+	                    </tr>
+					</table>
+					<% 
+					}else
+					{
+					%>
+					<table border="0" width="100%">
+						<tr>
+							<td class="login-buttons" colspan="2" style="font-size:9pt; text-align:center; width:30px"><font color="#FAFBFB">[ <%= login_name %> ]님 환영합니다.</font></td>
+						</tr>
+						<tr>
+							<td class="login-buttons" style="text-align:center; font-size:10pt; width:15px"><a href="javascript:Mypage();"><font color="#FAFBFB">마이페이지</font></a></td>
+	                        <td class="login-buttons" style="text-align:center; font-size:10pt; width:15px"><a href="../logoutok.jsp"><font color="#FAFBFB">로그아웃</font></a></td>
+	                    </tr>
+	                </table>    	
+					<% 	
+					}
+					%>
+				</form>
+			</td>	
+			<td rowspan="3" width="10px"></td>	
+			<td colspan="3">
+				<table border="0" width="100%">
+					<tr>
+						<td class="menu-item" style="text-align:center;"><a href="../notice/index.jsp">공지사항</a></td>        
+						<td class="menu-item" style="text-align:center;"><a href="../schedule/index.jsp">경기일정</a></td>
+						<td class="menu-item" style="text-align:center;"><a href="index.jsp">자유게시판</a></td>		
+						<td class="menu-item" style="text-align:center;"><a href="../gallery/index.jsp">갤러리</a></td>	
+					</tr>
+				</table>
+			</td>
+			<td rowspan="3" width="50px"></td>	<!-- 왼쪽 공백 -->
+		</tr>
+		<tr>	
+			<td colspan="3" height="10px"></td>		<!--자유게시판입니다. 테이블, 컨텐츠 사이공백 -->		
+		</tr>
+       	<tr>    
+        	<td align="center">
+            <!-- 컨텐츠 출력되는곳 -->

@@ -1,0 +1,23 @@
+<%@ page language="java" contentType="text/html; charset=UTF-8"
+    pageEncoding="UTF-8"%>
+<%
+request.setCharacterEncoding("utf-8");
+
+String upw = request.getParameter("upw");
+String upwcheck = request.getParameter("upwcheck");
+if(upw == null || upw.equals(""))
+{
+	out.println("00");
+	System.out.println("00");
+	return;
+}
+if(upw.equals(upwcheck))
+{
+	//같은 pw
+	out.println("01");
+}else
+{
+	//다른 pw
+	out.println("02");
+}
+%>

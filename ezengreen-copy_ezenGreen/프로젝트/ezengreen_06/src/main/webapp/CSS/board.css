@@ -1,0 +1,124 @@
+@charset "UTF-8";
+
+	.radius_img
+	{    
+		border-radius: 5%;
+	} 
+	table.outer-table 
+	{
+		border: 1px solid black; 
+		background-color: #E0E0E0;
+	}	
+	
+	td.login-buttons /* 로그인 회원가입*/
+	{
+		background-color: #34495E; /* 연한회색 배경색 */ 
+		border-top-right-radius: 8px; /* 오른쪽 위 모서리 깍기 */
+   		border-top-left-radius: 8px; /* 왼쪽 위 모서리 깍기 */
+   		border-bottom-right-radius: 8px; /* 왼쪽 위 모서리 깍기 */
+   		border-bottom-left-radius: 8px; /* 왼쪽 위 모서리 깍기 */
+	}
+	
+	.menu-item-clicked
+{
+    background-color: #34495E;
+    border-top-right-radius: 8px; /* 오른쪽 위 모서리 깍기 */
+	border-top-left-radius: 8px; /* 왼쪽 위 모서리 깍기 */
+	border-bottom-right-radius: 8px; /* 왼쪽 위 모서리 깍기 */
+	border-bottom-left-radius: 8px; /* 왼쪽 위 모서리 깍기 */
+}
+	
+	    /* 각 메뉴 항목의 배경색 설정 */
+	td.menu-item 
+	{		
+		height: 25px;
+		background-color: white; /* 하얀색 배경색 */
+		color: #333333; /* 폰트 색상 변경 */
+		border-top-right-radius: 8px; /* 오른쪽 위 모서리 깍기 */
+   		border-top-left-radius: 8px; /* 왼쪽 위 모서리 깍기 */
+   		border-bottom-right-radius: 8px; /* 왼쪽 위 모서리 깍기 */
+   		border-bottom-left-radius: 8px; /* 왼쪽 위 모서리 깍기 */
+	}
+	td.tail
+	{
+		background-color: #5E5E5E;
+	}
+	table.tail
+	{
+		background-color: #5E5E5E;
+		/* padding: 5px; */
+	}
+	a
+	{
+		text-decoration: none; /* 링크 밑줄 제거 */
+	}
+	div.copyright /* copyright부분 배경색 */
+	{
+		background-color: #454E5E; 
+	}
+	table.maintable /* 공지사항, 경기 일정 테이블 배경색 */
+	{
+		background-color: #F6F6F6;
+	}
+	.pre-m,.next-m /* 경기 일정 이전달, 다음달 글씨 크기 설정 */
+	{
+		font-size : 15px;
+	}
+	table.sch td /* 경기 일정 테이블 설정 */
+	{
+		vertical-align : top;
+		height:50px;
+	}
+	table.sch div /* 경기 일정 테이블 설정 */
+	{
+		font-size : 13px;
+		background-color: #F6F6F6;
+	}
+	img.gsize /* 갤러리 인덱스 */
+	{
+		align:center;
+		width: 100%;
+		height: 75%;
+		border-top-right-radius: 10px; /* 오른쪽 위 모서리 깍기 */
+   		border-top-left-radius: 10px; /* 왼쪽 위 모서리 깍기 */
+	}
+	
+	
+	img.gsize_v /* 갤러리 뷰 */
+	{
+		align:center;
+		width: 200px;
+		height: 150px;
+		border-top-right-radius: 10px; /* 오른쪽 위 모서리 깍기 */
+   		border-top-left-radius: 10px; /* 왼쪽 위 모서리 깍기 */
+	}
+	.gray
+	{
+		background-color: #E0E0E0;
+	}
+
+	tr.aaaa
+	{
+		height : 30px;
+	}
+	span.gtsize
+	{
+		font-size:9pt;
+	}
+	
+	hr
+	{
+		margin: 0px;
+	}
+	
+	.days td
+	{
+		text-align:center;
+		
+	}
+	td.asd
+	{
+		font-size: 10pt;
+	}
+
+	

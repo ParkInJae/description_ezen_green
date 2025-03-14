@@ -1,0 +1,25 @@
+package ezengreen.vo;
+
+public class UserVO
+{
+	private String uno;        //회원번호
+	private String uid; 	   //아이디
+	private String upw; 	   //비밀번호
+	private String uname; 	   //이름
+	private String uemail; 	   //이메일
+	private String ujoindate;  //가입일자
+	
+	public String getUno() 		 { return uno;		 }
+	public String getUid() 		 { return uid;		 }
+	public String getUpw() 	 	 { return upw;		 }
+	public String getUname()     { return uname;     }
+	public String getUemail()    { return uemail;    }
+	public String getUjoindate() { return ujoindate; }
+	
+	public void setUno(String uno) 			   { this.uno = uno;   			 }
+	public void setUid(String uid) 			   { this.uid = uid; 			 }
+	public void setUpw(String upw) 			   { this.upw = upw; 			 }
+	public void setUname(String uname) 		   { this.uname = uname; 		 }
+	public void setUemail(String uemail) 	   { this.uemail = uemail; 		 }
+	public void setUjoindate(String ujoindate) { this.ujoindate = ujoindate; }
+}

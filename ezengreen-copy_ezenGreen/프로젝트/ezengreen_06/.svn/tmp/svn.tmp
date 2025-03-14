@@ -1,0 +1,6 @@
+package ezengreen.dto;
+
+public class ReplyDTO 
+{
+
+}

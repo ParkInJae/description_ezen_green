@@ -1,0 +1,36 @@
+<%@ page language="java" contentType="text/html; charset=UTF-8"
+         pageEncoding="UTF-8"%>
+<%@ include file="include/head.jsp" %>         
+<%
+String bno = request.getParameter("bno");
+String nowpage = request.getParameter("page");
+String bkind = request.getParameter("kind");
+
+if(bno == null)
+{
+	response.sendRedirect("index.jsp");
+	return;
+}
+String sql = "";
+
+//첨부파일 삭제 -> 댓글 삭제 -> 게시물 삭제
+sql = "delete from file where bno = " + bno;
+System.out.println(sql);
+stmt.executeUpdate(sql);
+
+sql = "delete from reply where bno = " + bno;
+System.out.println(sql);
+stmt.executeUpdate(sql);
+
+sql = "delete from board where bno = " + bno;
+System.out.println(sql);
+stmt.executeUpdate(sql);
+%>
+<script>
+window.onload = function()
+{
+	alert("삭제 되었습니다");
+	
+	window.location.href = "index.jsp?page=<%= nowpage %>"; 
+}
+</script>

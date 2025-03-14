@@ -1,0 +1,56 @@
+package ezengreen.dto;
+
+import java.util.*;
+
+import ezengreen.dao.*;
+import ezengreen.vo.*;
+
+public class FileDTO extends DBManager
+{
+	public boolean FileUpload(FileVO vo)
+	{
+		if( this.DBOpen() == false )
+		{
+			return false;
+		}
+		
+		//첨부파일을 등록한다.
+		if(vo.getFname() != null && !vo.getFname().equals(""))
+		{
+			String sql = "";			
+			sql  = "insert into attach (bno,pname,fname) ";
+			sql += "values (";
+			sql += "'" + vo.getBno() + "',";
+			sql += "'" + vo.getPname() + "',";
+			sql += "'" + vo.getFname() + "'";
+			sql += ") ";
+			this.RunSQL(sql);	
+		}	
+		
+		this.DBClose();
+		return true;		
+	}
+	
+	public boolean FileDelete(FileVO vo)
+	{
+		if( this.DBOpen() == false )
+		{
+			return false;
+		}
+		
+		//삭제 요청한 첨부파일을 지운다.
+		if( vo.getFno() != null)
+		{
+			for(String f : vo.getFno())
+			{
+				String sql = "delete from file where fno = '" + f + "' ";
+				System.out.println(sql);
+				this.RunSQL(sql);		
+			}
+		}
+		
+		this.DBClose();
+		return true;		
+	}
+	
+}

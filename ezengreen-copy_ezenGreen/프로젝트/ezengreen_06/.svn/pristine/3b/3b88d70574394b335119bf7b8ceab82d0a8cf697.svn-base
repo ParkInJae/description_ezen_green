@@ -1,0 +1,77 @@
+<%@ page language="java" contentType="text/html; charset=UTF-8" pageEncoding="UTF-8"%>
+<%@ include file="include/head.jsp" %>
+<%
+//업로드가 가능한 최대 파일 크기를 지정한다.
+int size = 10 * 1024 * 1024;
+
+MultipartRequest multi;
+try
+{
+	multi = new MultipartRequest(request,uploadPath,size,"UTF-8",new DefaultFileRenamePolicy());
+}catch(Exception e)
+{
+	 e.printStackTrace();
+	 
+	response.sendRedirect("write.jsp");
+	return;
+}
+
+String btitle   = multi.getParameter("title");
+String bkind    = multi.getParameter("bkind");
+String bcontent = multi.getParameter("content").split("<img")[0];
+String nowpage  = multi.getParameter("page");
+bcontent = bcontent.replace("<p>", "").replace("</p>", "");
+
+//업로드된 파일명을 얻는다.
+Enumeration files = multi.getFileNames();
+
+BoardVO bvo = new BoardVO();
+while(files.hasMoreElements()) 
+{
+	String name     = (String) files.nextElement();
+	String filename = (String) multi.getFilesystemName(name);
+	
+	if(filename == null)
+	{
+		//업로드된 파일명이 null
+		continue;
+	}
+	
+	String phyname = UUID.randomUUID().toString();
+	String srcName    = uploadPath + "/" + filename;
+	String targetName = uploadPath + "/" + phyname;
+	File srcFile    = new File(srcName);
+	File targetFile = new File(targetName);
+	srcFile.renameTo(targetFile);
+	
+	
+	//게시물을 저장한다
+	bvo.setBtitle(btitle);
+	bvo.setBcontent(bcontent);
+	bvo.setBkind(bkind);
+	bvo.setUno(login.getUno());
+
+	bvo.setFname(filename);
+	bvo.setPname(phyname);
+
+	FileVO fvo = new FileVO();
+	fvo.setBno(bvo.getBno());
+	fvo.setFname(filename);
+	fvo.setPname(phyname);
+
+
+	BoardDTO bdto = new BoardDTO();
+	FileDTO fdto = new FileDTO();
+	bdto.Insert(bvo);
+	fdto.FileUpload(fvo, bvo.getBno());
+}
+
+%>       
+<script>
+window.onload = function()
+{
+	alert("작성 되었습니다");
+	
+	window.location.href = "view.jsp?no=<%= bvo.getBno() %>&page=<%= nowpage %>";
+}
+</script>

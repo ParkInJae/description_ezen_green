@@ -1,0 +1,45 @@
+<%@ page language="java" contentType="text/html; charset=UTF-8"
+         pageEncoding="UTF-8"%>
+<%@ include file="include/head.jsp" %>
+<%
+request.setCharacterEncoding("utf-8");
+
+String uid     = request.getParameter("uid");
+String upw     = request.getParameter("upw");
+String uname   = request.getParameter("uname");
+String uemail  = request.getParameter("umail");
+
+if( uid == null || upw == null )
+{
+	//회원가입 정보가 올바르게 전송되지 않음.
+	response.sendRedirect("join.jsp");
+	return;
+}
+
+//회원 정보를 등록한다.
+String sql = "";
+sql  = "insert into user (uid,upw,uname,uemail) ";
+sql += "values (";
+sql += "'" + uid     + "',";
+sql += "md5('" + upw + "'),";
+sql += "'" + uname   + "',";
+sql += "'" + uemail + "'";
+sql += ") ";
+System.out.println(sql);
+stmt.executeUpdate(sql);
+
+//등록된 회원의 번호를 얻는다.
+sql = "select last_insert_id() as uno ";
+ResultSet rs = stmt.executeQuery(sql);
+rs.next();
+String uno = rs.getString("uno");
+//out.println("회원번호:" + uno);
+%>
+<script>
+window.onload = function()
+{
+	alert("회원가입이 완료되었습니다");
+	
+	window.location.href = "login.jsp";
+}
+</script>

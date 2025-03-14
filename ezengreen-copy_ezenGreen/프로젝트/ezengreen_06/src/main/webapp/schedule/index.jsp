@@ -1,0 +1,188 @@
+<%@ page language="java" contentType="text/html; charset=UTF-8"
+         pageEncoding="UTF-8"%>
+<%@ page import="java.util.*" %>
+<%@ page import="java.time.*" %>
+<%@ include file="include/head.jsp" %>
+<%
+String bkind = request.getParameter("kind");
+String year = request.getParameter("year");
+String month = request.getParameter("month");
+String day = request.getParameter("day");
+
+if(bkind == null) bkind = "S";
+String title = "";
+switch(bkind)
+{
+	case "N" : title = "공지사항";		break;
+	case "S" : title = "경기일정";		break;
+	case "C" : title = "자유게시판";	break;
+	case "G" : title = "갤러리";		break;
+}
+
+LocalDate now = LocalDate.now();
+
+int today_year   = now.getYear();
+int today_month  = now.getMonthValue();
+int today_day    = now.getDayOfMonth();
+
+
+int cur_year   = now.getYear();
+int cur_month  = now.getMonthValue();
+
+if(year==null) year   = today_year+"";
+if(month==null) month = today_month+"";
+if(day==null) day     = today_day+"";
+
+try
+{
+	cur_year  = Integer.parseInt(request.getParameter("year"));
+	cur_month = Integer.parseInt(request.getParameter("month"));
+}catch(Exception e){}
+
+int pre_year   = cur_year;
+int pre_month  = cur_month - 1;
+if(pre_month <= 0)
+{
+	pre_year--;
+	pre_month = 12;
+}
+
+int next_year   = cur_year;
+int next_month  = cur_month + 1;
+if(next_month > 12)
+{
+	next_year++;
+	next_month = 1;
+}
+BoardDTO bdto = new BoardDTO();
+%>
+<style>
+
+.today
+{
+	color: red;
+}
+
+.box
+{
+	height: 200px;
+}
+.maintable > *
+{
+	font-size : 10pt;
+	background-color : white;
+}
+
+</style>
+
+<table border="0" width="100%" height="430px" class="maintable">
+	<tr>
+		<td colspan="2" align="left" style="font-size: 14pt; font-weight: 900;"><b>경기일정</b></td>
+	</tr>
+	<tr>
+		<td colspan="2" style=" height:75px; text-align:center; font-size:25pt; font-weight:bold">
+			<a href="index.jsp?year=<%= pre_year %>&month=<%= pre_month %>" class="pre-m">&lt;</a> 
+			<%= cur_year %>.<%= cur_month %> 
+			<a href="index.jsp?year=<%= next_year %>&month=<%= next_month %>" class="next-m">&gt;</a>
+		</td>
+	</tr>
+	<tr>
+		<td>
+			<table border="1" class="sch" width="100%" height="100%" style="word-break:break-all; table-layout: fixed; border-collapse:collapse;">
+				<thead>
+					<tr class="days">
+						<td style="color:red">일</td>
+						<td>월</td>
+						<td>화</td>
+						<td>수</td>
+						<td>목</td>
+						<td>금</td>
+						<td style="color:blue">토</td>
+					</tr>
+				</thead>
+				<tbody>
+				<%
+					// 1일 앞 달
+					int startday = 1;
+					int endday = 30;
+					//현재 월에 따라서 endday를 산출
+					Calendar cal = Calendar.getInstance();
+					cal.set(cur_year,cur_month - 1,1);
+					endday = cal.getActualMaximum(Calendar.DAY_OF_MONTH);				
+					
+					//1일이 무슨 요일 인지 계산한다.
+					// 일 월 화 수 목 금 토
+					// java
+					// 7 1 2 3 4 5 6
+					// %7+1
+					// 1 2 3 4 5 6 7
+					
+					int week = 0;
+					LocalDate date = LocalDate.of(cur_year, cur_month, 1);				
+					week = date.getDayOfWeek().getValue()%7+1;
+					//out.println("week:" + week);
+					
+					out.print("<tr>");
+					// 1일 앞 부분
+					for(int i=1; i<week; i++) 
+					{
+						//out.print("<td>&nbsp;</td>");
+						out.print("<td class='box'>&nbsp;</td>");
+			
+					}
+					
+					// 1일부터 말일까지 출력
+					String today = "";
+					for(int i=1; i<= endday ; i++) 
+					{
+						today = (today_year == cur_year && today_month == cur_month && today_day == i) ? "today" : "";
+						//bkind = "G";						
+						//현재 년월일에 해당하는 게시물이 있는지 조회한다. =============== [ 시작 ]
+						ArrayList<BoardVO> list = bdto.GetList_S(bkind, cur_year, cur_month, i);
+						
+						for(BoardVO item : list)
+						{
+							%>
+							<td class="<%= today %>" class="box"><%= i %><br>
+							<a href="view.jsp?no=<%= item.getBno() %>&year=<%= cur_year %>&month=<%= cur_month %>&day=<%= i %>"><font size="2pt"><%= item.getBtitle() %></font></a><br>
+							<%			
+						}
+						if(list==null || list.size()==0)
+						{
+							if(login != null && login.getUid().equals("admin"))
+							{
+								//데이터가 없고 관리자면 글쓰기로 링크
+								%>
+								<td class="box" onclick="location.href='write.jsp?kind=<%=bkind%>&year=<%= cur_year %>&month=<%= cur_month %>&day=<%= i %>'" class="<%= today %>"><%= i %><br>
+								<%
+							}else
+							{
+								%>
+								<td class="box" class="<%= today %>"><%= i %><br>
+								<%								
+							}
+						}
+						//현재 년월일에 해당하는 게시물이 있는지 조회한다. =============== [ 종료 ]					
+								
+						out.print("</td>");
+						if(endday != i && (++week)%7 == 1) 
+						{
+							out.print("</tr><tr>");
+						}
+					}
+					
+					// 마지막 주 마지막 일자 다음 처리
+					int n = 1;
+					for(int i = (week-1) % 7; i < 6; i++) 
+					{
+						out.print("<td class='box'>&nbsp;</td>");
+					}
+					out.print("</tr>");
+					%>		
+				</tbody>
+			</table>				
+		</td>
+	</tr>
+</table>
+
+<%@ include file="include/tail.jsp" %>

@@ -1,0 +1,12 @@
+package ezengreen.vo;
+
+public class BoardVO
+{
+	private String bno; 	  // 게시물번호
+	private String uno; 	  // 회원번호
+	private String btitle;	  // 제목	
+	private String bcontent;  // 내용
+	private String bkind; 	  // 게시판구분
+	private String bwdate; 	  // 작성일
+	private String bhit; 	  // 조회수
+}

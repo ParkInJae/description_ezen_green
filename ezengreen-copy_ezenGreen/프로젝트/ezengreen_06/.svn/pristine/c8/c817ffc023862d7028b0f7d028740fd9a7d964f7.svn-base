@@ -1,0 +1,25 @@
+<%@ page language="java" contentType="text/html; charset=UTF-8"
+         pageEncoding="UTF-8"%>
+<%@ include file="include/head.jsp" %>
+<%
+String rno     = request.getParameter("rno");
+String bno     = request.getParameter("no");
+String bkind   = request.getParameter("kind");
+String nowpage = request.getParameter("page");
+String sql = "";
+
+sql = "delete from reply where rno = " + rno;
+System.out.println(sql);
+stmt.executeUpdate(sql);
+
+%>        
+<script>
+window.onload = function()
+{
+	alert("삭제 되었습니다");
+	
+	<%-- window.location.href = "view.jsp?no=<%= bno %>&kind=<%= bkind %>"; --%>
+	window.location.href = "view.jsp?no="+ <%= bno %> + "&page=" + <%= nowpage %>;
+
+}
+</script>

@@ -1,0 +1,116 @@
+package ezengreen.dao;
+
+import java.sql.Connection;
+import java.sql.DriverManager;
+import java.sql.ResultSet;
+import java.sql.Statement;
+
+public class DBManager
+{
+	// 필드멤버
+	private Connection	conn = null;
+	private Statement	stmt = null;
+	private ResultSet result = null;
+	
+	private String host;
+	private String user;
+	private String pass;
+	
+	// host, userId, password 설정은 생성자
+	public DBManager()
+	{
+		host = "jdbc:mysql://192.168.0.20:3306/ezengreen";
+		host += "?useUnicode=true&characterEncoding=utf-8";
+		host += "&serverTimezone=UTC";
+		user = "ezengreen";
+		pass = "ezen";
+	}
+	// ID, PW 받아서 사용하기
+	public void setUser(String user) { this.user = user; }
+	public void setPass(String pass) { this.pass = pass; }
+
+	// 메소드
+	// DB 연결 생성
+	public boolean DBOpen()
+	{
+		try {	// 드라이버 로딩
+			Class.forName("com.mysql.cj.jdbc.Driver");
+			// DB 연결 생성
+			conn = DriverManager.getConnection(host, user, pass);
+			System.out.println("DB에 연결했습니다.");
+			return true;
+		}catch(Exception e) {
+			System.out.println("DB에 연결하지 못했습니다.");
+			e.printStackTrace();
+			return false;
+		}
+	}
+	
+	
+	public boolean DBClose()
+	{	// DB 연결 종료
+		try { conn.close(); return true; }
+		catch(Exception e) { e.printStackTrace(); return false;}
+	}
+	
+	// SQL 구문 실행 - update - insert, update, delete
+	public boolean RunSQL(String sql)
+	{	// 인자로 받은 SQL문을 출력
+		System.out.println("sql : " + sql);
+		try {
+			// 작업 처리용 stmt 생성
+			stmt = conn.createStatement();
+			// SQL 구문 실행
+//			System.out.println("결과 : " + stmt.executeUpdate(sql));
+			int result = stmt.executeUpdate(sql);
+			// stmt를 닫는다
+			stmt.close();
+			if( result > 0) { return true; }
+			else { return false; }
+		}catch(Exception e) { e.printStackTrace(); return false; }
+	}
+	// SQL 구문 실행 - select -> result -> OpenQuery(sql)
+	public boolean OpenQuery(String sql)
+	{	// 인자로 받은 SQL문을 출력
+		System.out.println("sql : " + sql);
+		try {
+			// 작업 처리용 stmt 생성
+			stmt = conn.createStatement();
+			// SQL 구문 실행
+			result =  stmt.executeQuery(sql);
+			return true;
+		}catch(Exception e) { e.printStackTrace(); return false; }
+	}
+	// next()를 실행해줄 메소드	-> GetNext()
+	public boolean GetNext()
+	{
+		try { return result.next(); }
+		catch(Exception e) { e.printStackTrace(); return false; }
+	}
+	// getValue를 해줄 메소드	-> GetValue(컬럼이름)
+	public String GetValue(String column)
+	{
+		try { return result.getString(column); }
+		catch(Exception e) { e.printStackTrace(); return null; }
+	}
+
+	// 정수 데이터를 받아주는 메소드
+	public int GetInt(String column)
+	{
+		try { return result.getInt(column); }
+		catch(Exception e) { e.printStackTrace(); return -1; }
+	}
+	
+	// SQL 구문 실행을 닫아줄 메소드	-> CloseQuery()
+	public boolean CloseQuery()
+	{	// DB 연결 종료
+		try { stmt.close(); return true; }
+		catch(Exception e) { e.printStackTrace(); return false;}
+	}
+	
+	// 작은 따옴표 처리 메소드
+	public String _R( String str )
+	{
+		return str.replace("'", "''");
+	}
+}
